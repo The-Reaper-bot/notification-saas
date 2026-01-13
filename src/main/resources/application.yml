@@ -1,0 +1,52 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: notification-saas
+
+  spring:
+    datasource:
+      url: jdbc:h2:mem:notificationdb
+      driver-class-name: org.h2.Driver
+      username: sa
+      password:
+
+    jpa:
+      hibernate:
+        ddl-auto: update
+      show-sql: true
+
+    h2:
+      console:
+        enabled: true
+
+    mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USER:dummy@gmail.com}
+    password: ${MAIL_PASS:dummy}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+
+jwt:
+  secret: ${JWT_SECRET:local-dev-secret}
+
+textlocal:
+  api-key: ${TEXTLOCAL_API_KEY:dummy}
+  sender: ${TEXTLOCAL_SENDER:ABCDEF}
+  pe-id: ${TEXTLOCAL_PE_ID:123456}
+  template-id: ${TEXTLOCAL_TEMPLATE_ID:987654}
+
+gupshup:
+  api-key: ${GUPSHUP_API_KEY:dummy}
+  app-name: ${GUPSHUP_APP_NAME:dummy}

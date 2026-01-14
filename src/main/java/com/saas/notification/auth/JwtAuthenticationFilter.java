@@ -32,40 +32,51 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
-        try {
-            String authHeader = request.getHeader("Authorization");
+        String authHeader = request.getHeader("Authorization");
 
-            if (authHeader != null && authHeader.startsWith("Bearer ")) {
-
-                String token = authHeader.substring(7);
-
-                Claims claims = Jwts.parserBuilder()
-                        .setSigningKey(secret.getBytes(StandardCharsets.UTF_8))
-                        .build()
-                        .parseClaimsJws(token)
-                        .getBody();
-
-                String role = claims.get("role", String.class);
-                String tenantId = claims.get("tenantId", String.class);
-
-                // Set tenant context
-                TenantContext.setTenantId(UUID.fromString(tenantId));
-
-                UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(
-                                claims.get("userId"),
-                                null,
-                                List.of(new SimpleGrantedAuthority("ROLE_" + role))
-                        );
-
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-            }
-
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
+            return;
+        }
 
+        String token = authHeader.substring(7);
+
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(secret.getBytes(StandardCharsets.UTF_8))
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+
+        String role = claims.get("role", String.class);
+        String tenantId = claims.get("tenantId", String.class);
+
+        TenantContext.setTenantId(UUID.fromString(tenantId));
+
+        UsernamePasswordAuthenticationToken authentication =
+                new UsernamePasswordAuthenticationToken(
+                        claims.get("userId"),
+                        null,
+                        List.of(new SimpleGrantedAuthority("ROLE_" + role))
+                );
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        try {
+            filterChain.doFilter(request, response);
         } finally {
-            // ALWAYS clear thread-local
             TenantContext.clear();
         }
+    }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+
+        String path = request.getServletPath();
+
+        return path.startsWith("/auth/")
+                || path.startsWith("/swagger-ui")
+                || path.startsWith("/v3/api-docs")
+                || path.startsWith("/swagger-resources")
+                || path.startsWith("/webjars");
     }
 }

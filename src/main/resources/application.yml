@@ -39,7 +39,7 @@ springdoc:
     enabled: true
 
 jwt:
-  secret: ${JWT_SECRET:local-dev-secret}
+  secret: ${JWT_SECRET:local-dev-secret-key-must-be-at-least-256-bits-long-for-security}
 
 textlocal:
   api-key: ${TEXTLOCAL_API_KEY:dummy}

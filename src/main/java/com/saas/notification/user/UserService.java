@@ -16,7 +16,7 @@ public class UserService {
     private final TenantRepository tenantRepository;
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
-    public User signup(Map<String, String> req) {
+    public Users signup(Map<String, String> req) {
 
         Tenant tenant = new Tenant();
         tenant.setName(req.get("company"));
@@ -24,7 +24,7 @@ public class UserService {
         tenant.setStatus("ACTIVE");
         tenantRepository.save(tenant);
 
-        User user = new User();
+        Users user = new Users();
         user.setTenantId(tenant.getId());
         user.setEmail(req.get("email"));
         user.setPassword(encoder.encode(req.get("password")));
@@ -33,8 +33,8 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public User login(Map<String, String> req) {
-        User user = userRepository.findByEmail(req.get("email"))
+    public Users login(Map<String, String> req) {
+        Users user = userRepository.findByEmail(req.get("email"))
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         if (!encoder.matches(req.get("password"), user.getPassword())) {

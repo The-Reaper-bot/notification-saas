@@ -26,6 +26,7 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/",
                                 "/auth/**",
+                                "/api/v1/notifications/**",
                                 "/swagger-ui.html",
                                 "/swagger-ui/**",
                                 "/v3/api-docs",
@@ -41,6 +42,8 @@ public class SecurityConfig {
                         jwtAuthenticationFilter,
                         UsernamePasswordAuthenticationFilter.class
                 );
+
+        http.headers(headers -> headers.frameOptions(frame -> frame.disable()));
 
         return http.build();
     }
